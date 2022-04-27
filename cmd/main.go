@@ -14,7 +14,7 @@ func main() {
 		logrus.Fatal(errLoadEnv, "error loading env variables")
 	}
 
-	app := app.CreateAndRun()
+	app := app.NewApp()
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt)
