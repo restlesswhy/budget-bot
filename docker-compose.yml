@@ -7,11 +7,14 @@ services:
         restart: always
         ports:
             - "5432:5432"
-        environment:
-            POSTGRES_PASSWORD: 123456
-            POSTGRES_USER: exezz
-            TELEGRAM_APITOKEN: 5123457579:AAFxFCwGytbu-DRy4fNfPpSkvqZNkKgDawk
-            CONFIG: config
+        env_file:
+            - .env
+        # environment:
+        #     POSTGRES_DB: bot
+        #     POSTGRES_USER: exezz
+        #     POSTGRES_PASSWORD: 123456
+        #     TELEGRAM_APITOKEN: 5123457579:AAFxFCwGytbu-DRy4fNfPpSkvqZNkKgDawk
+        #     CONFIG: config
    
         volumes:
             - ./db_data:/var/lib/postgresql/data
