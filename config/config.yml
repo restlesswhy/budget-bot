@@ -1,6 +1,6 @@
 postgres:
   username: postgres
   password: 123456
-  hostname: bot_db
+  hostname: localhost
   port: 5432
   dbname: bot

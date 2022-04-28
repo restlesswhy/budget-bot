@@ -4,9 +4,11 @@ import (
 	"bot/internal"
 	"fmt"
 	"os"
+	"strconv"
 	"sync"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/sirupsen/logrus"
 )
 
 var numericKeyboard = tgbotapi.NewInlineKeyboardMarkup(
@@ -51,6 +53,8 @@ func NewApp(repo internal.Repository) *App {
 	return app
 }
 
+
+
 func (a *App) Run() {
 	defer a.wg.Done()
 
@@ -64,9 +68,17 @@ func (a *App) Run() {
 		select {
 		case u := <-updates:
 			if u.Message != nil {
-				// Construct a new message from the given chat ID and containing
-				// the text that we received.
-				msg := tgbotapi.NewMessage(u.Message.Chat.ID, u.Message.Text)
+				msg, err := strconv.Atoi(u.Message.Text)
+				if err != nil {
+					answ := tgbotapi.NewMessage(u.Message.Chat.ID, "wrong input format, buddy :(")
+
+					if _, err := a.bot.Send(answ); err != nil {
+						logrus.Fatal(fmt.Sprintf("err send msg: %v", err))
+					}
+				}
+
+				a.repo.WriteMessage()
+				// msg := tgbotapi.NewMessage(u.Message.Chat.ID, u.Message.Text)
 	
 				// If the message was open, add a copy of our numeric keyboard.
 				switch u.Message.Text {
