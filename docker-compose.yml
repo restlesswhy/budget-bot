@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+    postgres:
+        container_name: bot_db
+        image: postgres:latest
+        restart: always
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_PASSWORD: 123456
+            POSTGRES_USER: exezz
+            TELEGRAM_APITOKEN: 5123457579:AAFxFCwGytbu-DRy4fNfPpSkvqZNkKgDawk
+            CONFIG: config
+   
+        volumes:
+            - ./db_data:/var/lib/postgresql/data
+        networks: 
+            - bot_network
+
+    bot:
+        container_name: bot_app
+        build: .
+        restart: always
+        ports:
+            - "8080:8080"
+        depends_on:
+            - postgres
+        volumes:
+            - ./config:/bot/config
+        networks: 
+            - bot_network
+
+networks:
+    bot_network:
+        driver: bridge

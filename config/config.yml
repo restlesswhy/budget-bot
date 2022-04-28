@@ -1,0 +1,6 @@
+postgres:
+  username: exezz
+  password: 123456
+  hostname: bot_db
+  port: 5432
+  dbname: bot

@@ -1,7 +1,10 @@
 package main
 
 import (
-	"bot/app"
+	"bot/config"
+	"bot/internal/app"
+	"bot/internal/repository"
+	"bot/pkg/postgres"
 	"os"
 	"os/signal"
 
@@ -10,11 +13,23 @@ import (
 )
 
 func main() {
-	if errLoadEnv := godotenv.Load(); errLoadEnv != nil {
-		logrus.Fatal(errLoadEnv, "error loading env variables")
+	if err := godotenv.Load(); err != nil {
+		logrus.Fatal(err, "error loading env")
 	}
 
-	app := app.NewApp()
+	cfg, err := config.Load(os.Getenv("CONFIG"))
+	if err != nil {
+		logrus.Fatal(err, "error loading config")
+	}
+
+	pool, err := postgres.Connect(cfg)
+	if err != nil {
+		logrus.Fatal(err, "error connect to db")
+	}
+	defer pool.Close()
+
+	repo := repository.NewDataRepo(pool)
+	app := app.NewApp(repo)
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt)
