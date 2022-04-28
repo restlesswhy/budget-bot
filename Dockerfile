@@ -9,4 +9,6 @@ WORKDIR /bot
 COPY --from=builder /go/src/bot/main .
 COPY --from=builder /go/src/bot/.env .
 
+RUN apt update && apt install ca-certificates -y
+
 ENTRYPOINT [ "/bot/main" ]

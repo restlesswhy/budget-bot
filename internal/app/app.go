@@ -2,6 +2,7 @@ package app
 
 import (
 	"bot/internal"
+	"fmt"
 	"os"
 	"sync"
 
@@ -30,6 +31,7 @@ type App struct {
 }
 
 func NewApp(repo internal.Repository) *App {
+	fmt.Println(os.Getenv("TELEGRAM_APITOKEN"))
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
 	if err != nil {
 		panic(err)
