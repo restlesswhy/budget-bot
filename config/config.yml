@@ -1,5 +1,5 @@
 postgres:
-  username: postgres
+  username: exezz
   password: 123456
   hostname: localhost
   port: 5432

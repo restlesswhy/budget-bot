@@ -54,11 +54,40 @@ func Connect(cfg *config.Config) (*pgxpool.Pool, error) {
 		return nil, err
 	}
 
+	err = initDB(dbpool)
+	if err != nil {
+		return nil, err
+	}
+
 	return dbpool, nil
 }
 
 func CreateDB(pool *pgxpool.Pool, dbName string) error {
 	query := `CREATE DATABASE ` + dbName + ";"
+	_, err := pool.Exec(context.Background(), query)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func initDB(pool *pgxpool.Pool) error {
+	query := `
+		CREATE TABLE IF NOT EXISTS messages (
+			id integer NOT NULL UNIQUE,
+			text varchar(250) NOT NULL,
+			firstname varchar(250) NOT NULL,
+			lastname varchar(250) NOT NULL,
+			username varchar(250) NOT NULL
+		);
+		
+		CREATE TABLE IF NOT EXISTS buttons (
+			id integer NOT NULL UNIQUE,
+			message_relation_id integer NOT NULL
+		);
+	`
+
 	_, err := pool.Exec(context.Background(), query)
 	if err != nil {
 		return err
