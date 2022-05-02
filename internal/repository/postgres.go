@@ -9,41 +9,50 @@ import (
 	"github.com/pkg/errors"
 )
 
-type dataRepo struct {
+type repos struct {
 	pool *pgxpool.Pool
 }
 
-func NewDataRepo(pool *pgxpool.Pool) internal.Repository {
-	return &dataRepo{
+func NewRepos(pool *pgxpool.Pool) internal.Repository {
+	return &repos{
 		pool: pool,
 	}
 }
 
-func (d *dataRepo) WriteMessage(msg *models.Message) error {
-	q := `INSERT INTO messages (id, text, firstname, lastname, username) VALUES ($1, $2, $3, $4, $5);`
+func (r *repos) WriteButton(btn *models.Buttons) error {
+	q := `INSERT INTO buttons (button_id, message_id, amount, firstname, lastname, username)
+			VALUES ($1, $2, $3, $4, $5, $6);`
 
-	_, err := d.pool.Exec(context.Background(),
+	_, err := r.pool.Exec(context.Background(),
 		q,
-		msg.ID,
-		msg.Text,
-		msg.Firstname,
-		msg.Lastname,
-		msg.Username,
+		btn.ID,
+		btn.MessageID,
+		btn.Amount,
+		btn.Firstname,
+		btn.Lastname,
+		btn.Username,
 	)
 	if err != nil {
-		return errors.Wrap(err, "can't exec message")
+		return errors.Wrap(err, "can't exec button")
 	}
 
 	return nil
 }
 
-func (d *dataRepo) WriteButton(msg *models.Buttons) error {
-	q := `INSERT INTO buttons (id, message_relation_id) VALUES ($1, $2);`
+func (r *repos) WriteTransaction(tx *models.Transaction) error {
+	q := `INSERT INTO transactions (button_id, amount, category, time) 
+			VALUES (
+				$1,
+				(select amount from buttons where button_id=$1),
+				$2,
+				$3
+			);`
 
-	_, err := d.pool.Exec(context.Background(),
+	_, err := r.pool.Exec(context.Background(),
 		q,
-		msg.ID,
-		msg.MessageRelationID,
+		tx.ButtonID,
+		tx.Category,
+		tx.Time,
 	)
 	if err != nil {
 		return errors.Wrap(err, "can't exec button")

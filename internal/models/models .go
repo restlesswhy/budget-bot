@@ -1,14 +1,27 @@
 package models
 
-type Message struct {
-	ID        int
-	Text      string
-	Firstname string
-	Lastname  string
-	Username  string
-}
+import "time"
+
+// type Message struct {
+// 	ID        int
+// 	Text      string
+// 	Firstname string
+// 	Lastname  string
+// 	Username  string
+// }
 
 type Buttons struct {
 	ID                int
-	MessageRelationID int
+	MessageID         int
+	Amount            int
+	Firstname         string
+	Lastname          string
+	Username          string
+}
+
+type Transaction struct {
+	ButtonID int
+	Amount   int
+	Category string
+	Time     time.Time
 }

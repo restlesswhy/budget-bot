@@ -28,7 +28,7 @@ func main() {
 	}
 	defer pool.Close()
 
-	repo := repository.NewDataRepo(pool)
+	repo := repository.NewRepos(pool)
 	app := app.NewApp(repo)
 
 	sig := make(chan os.Signal, 1)
