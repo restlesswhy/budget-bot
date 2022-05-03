@@ -99,16 +99,20 @@ func (a *App) Run() {
 					}
 
 				case "get monthly report":
-					answ := tgbotapi.NewMessage(u.Message.Chat.ID, "wait a minuttee... maybe more :(")
-					answ.ReplyMarkup = buttons
+					answ := tgbotapi.NewMessage(u.Message.Chat.ID, "")
+					answ.ParseMode = tgbotapi.ModeMarkdown
 
 					if _, err := a.bot.Send(answ); err != nil {
 						logrus.Fatal(fmt.Sprintf("err send msg: %v", err))
 					}
 
+					// report, err := a.repo.GetMonthReport()
+					// if err != nil {
+					// 	logrus.Fatal(err)
+					// }
+
 				case "get day report":
 					answ := tgbotapi.NewMessage(u.Message.Chat.ID, "oh, sorry, buddy, we r working on it :(")
-					answ.ReplyMarkup = buttons
 
 					if _, err := a.bot.Send(answ); err != nil {
 						logrus.Fatal(fmt.Sprintf("err send msg: %v", err))
@@ -176,7 +180,7 @@ func (a *App) Run() {
 					if err != nil {
 						logrus.Fatal(fmt.Sprintf("err send msg: %v", err))
 					}
-					
+
 					continue
 				}
 				// Respond to the callback query, telling Telegram to show the user

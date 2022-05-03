@@ -2,13 +2,10 @@ package models
 
 import "time"
 
-// type Message struct {
-// 	ID        int
-// 	Text      string
-// 	Firstname string
-// 	Lastname  string
-// 	Username  string
-// }
+type Report struct {
+	Category string
+	Amount int64
+}
 
 type Buttons struct {
 	ID                int

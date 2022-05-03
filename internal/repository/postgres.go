@@ -4,9 +4,14 @@ import (
 	"bot/internal"
 	"bot/internal/models"
 	"context"
+	"time"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/pkg/errors"
+)
+
+const (
+	TIME_FORMAT = "2006-01-02 15:04:05"
 )
 
 type repos struct {
@@ -58,5 +63,46 @@ func (r *repos) WriteTransaction(tx *models.Transaction) error {
 		return errors.Wrap(err, "can't exec button")
 	}
 
+	return nil
+}
+
+func (r *repos) GetMonthReport() ([]*models.Report, error) {
+	res := []*models.Report{}
+
+	now := time.Now()
+	currentYear, currentMonth, _ := now.Date()
+	currentLocation := now.Location()
+
+	firstOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation)
+	lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
+
+	q := `SELECT category, SUM(amount)
+			FROM transactions
+			WHERE time BETWEEN $1 and $2
+			GROUP BY category;`
+
+	rows, err := r.pool.Query(context.Background(), q, firstOfMonth.Format(TIME_FORMAT), lastOfMonth.Format(TIME_FORMAT))
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		values, err := rows.Values()
+		if err != nil {
+			return nil, err
+		}
+
+		scanRes := &models.Report{}
+
+		scanRes.Category = values[0].(string)
+		scanRes.Amount = values[1].(int64)
+
+		res = append(res, scanRes)
+	}
+
+	return res, nil
+}
+
+func (r *repos) GetDayReport() error {
 	return nil
 }
