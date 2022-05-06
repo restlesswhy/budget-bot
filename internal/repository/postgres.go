@@ -66,8 +66,10 @@ func (r *repos) WriteTransaction(tx *models.Transaction) error {
 	return nil
 }
 
-func (r *repos) GetMonthReport() ([]*models.Report, error) {
-	res := []*models.Report{}
+func (r *repos) GetMonthReport() (*models.TotalReport, error) {
+	res := &models.TotalReport{
+		SpendsSet: make([]*models.Report, 0),
+	}
 
 	now := time.Now()
 	currentYear, currentMonth, _ := now.Date()
@@ -97,7 +99,16 @@ func (r *repos) GetMonthReport() ([]*models.Report, error) {
 		scanRes.Category = values[0].(string)
 		scanRes.Amount = values[1].(int64)
 
-		res = append(res, scanRes)
+		res.SpendsSet = append(res.SpendsSet, scanRes)
+	}
+
+	q = `SELECT SUM(amount)
+	FROM transactions
+	WHERE time BETWEEN $1 and $2;`
+
+	err = r.pool.QueryRow(context.Background(), q, firstOfMonth.Format(TIME_FORMAT), lastOfMonth.Format(TIME_FORMAT)).Scan(&res.TotalSpend)
+	if err != nil {
+		return nil, err
 	}
 
 	return res, nil

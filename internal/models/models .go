@@ -2,6 +2,11 @@ package models
 
 import "time"
 
+type TotalReport struct {
+	TotalSpend int64
+	SpendsSet []*Report
+}
+
 type Report struct {
 	Category string
 	Amount int64

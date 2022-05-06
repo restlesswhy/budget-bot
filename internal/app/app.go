@@ -18,6 +18,7 @@ const (
 	HomeFood   = "2"
 	HomeStuff  = "3"
 	Income     = "4"
+	CancelTx   = "5"
 )
 
 var ctgs map[string]string = map[string]string{
@@ -102,14 +103,17 @@ func (a *App) Run() {
 					answ := tgbotapi.NewMessage(u.Message.Chat.ID, "")
 					answ.ParseMode = tgbotapi.ModeMarkdown
 
+					report, err := a.repo.GetMonthReport()
+					if err != nil {
+						logrus.Fatal(err)
+					}
+
+					prettyRep := transformMonthReport(report)
+					answ.Text = fmt.Sprintf("`%s`", prettyRep)
+
 					if _, err := a.bot.Send(answ); err != nil {
 						logrus.Fatal(fmt.Sprintf("err send msg: %v", err))
 					}
-
-					// report, err := a.repo.GetMonthReport()
-					// if err != nil {
-					// 	logrus.Fatal(err)
-					// }
 
 				case "get day report":
 					answ := tgbotapi.NewMessage(u.Message.Chat.ID, "oh, sorry, buddy, we r working on it :(")
@@ -201,7 +205,7 @@ func (a *App) Run() {
 					"alll rightt!!! succesfully add this transaction :)",
 					tgbotapi.NewInlineKeyboardMarkup(
 						tgbotapi.NewInlineKeyboardRow(
-							tgbotapi.NewInlineKeyboardButtonData("cancel txn", "5"),
+							tgbotapi.NewInlineKeyboardButtonData("cancel txn", CancelTx),
 						)))
 				_, err := a.bot.Request(edit)
 				if err != nil {
@@ -233,6 +237,18 @@ func (a *App) WriteTransaction(ctg string, data *tgbotapi.CallbackQuery) error {
 	}
 
 	return nil
+}
+
+func transformMonthReport(report *models.TotalReport) string {
+	res := "MONTHLY REPORT\n^^^^^^^^^^^^^^^^^^^\n"
+	for _, v := range report.SpendsSet {
+		row := fmt.Sprintf("[%s] - %d\n", v.Category, v.Amount)
+		res += row
+	}
+
+	res += fmt.Sprintf("-------------------\nTOTAL SPENDS\n%d", report.TotalSpend)
+
+	return res
 }
 
 func (a *App) Close() {
